@@ -74,12 +74,12 @@
       spd = 255;
     
     if (i == LEFT) { 
-      if      (reverse == 0) { analogWrite(LEFT_MOTOR_FORWARD, spd); analogWrite(LEFT_MOTOR_BACKWARD, 0); }
-      else if (reverse == 1) { analogWrite(LEFT_MOTOR_BACKWARD, spd); analogWrite(LEFT_MOTOR_FORWARD, 0); }
+      if      //(reverse == 0) { analogWrite(LEFT_MOTOR_FORWARD, spd); analogWrite(LEFT_MOTOR_BACKWARD, 0); }
+      else if //(reverse == 1) { analogWrite(LEFT_MOTOR_BACKWARD, spd); analogWrite(LEFT_MOTOR_FORWARD, 0); }
     }
     else /*if (i == RIGHT) //no need for condition*/ {
-      if      (reverse == 0) { analogWrite(RIGHT_MOTOR_FORWARD, spd); analogWrite(RIGHT_MOTOR_BACKWARD, 0); }
-      else if (reverse == 1) { analogWrite(RIGHT_MOTOR_BACKWARD, spd); analogWrite(RIGHT_MOTOR_FORWARD, 0); }
+      if      //(reverse == 0) { analogWrite(RIGHT_MOTOR_FORWARD, spd); analogWrite(RIGHT_MOTOR_BACKWARD, 0); }
+      else if //(reverse == 1) { analogWrite(RIGHT_MOTOR_BACKWARD, spd); analogWrite(RIGHT_MOTOR_FORWARD, 0); }
     }
   }
   
@@ -116,12 +116,18 @@
       spd = 255;
     
     if (i == LEFT) { 
-      digitalWrite(LEFT_MOTOR_CTRL, LOW); analogWrite(LEFT_MOTOR_PWM, spd);
-      digitalWrite(RIGHT_MOTOR_CTRL, HIGH); analogWrite(RIGHT_MOTOR_PWM, 0);
+      // Right Wheel Reverse if Reverse Bit == 1
+      if      (reverse == 1) {digitalWrite(LEFT_MOTOR_CTRL, LOW); analogWrite(LEFT_MOTOR_PWM, spd);} // Right Wheels = Motor 1 on Test Code
+      // Right Wheel Forward if Reverse Bit == 1
+      else if (reverse == 0) {digitalWrite(LEFT_MOTOR_CTRL, HIGH); analogWrite(LEFT_MOTOR_PWM, spd);} // Right Wheels = Motor 1 on Test Code
+
+      //digitalWrite(RIGHT_MOTOR_CTRL, HIGH); analogWrite(RIGHT_MOTOR_PWM, 0); // Left Weels = Motor 2 on Test Code
     }
     else /*if (i == RIGHT) //no need for condition*/ {
-      digitalWrite(LEFT_MOTOR_CTRL, HIGH); analogWrite(LEFT_MOTOR_PWM, 0);
-      digitalWrite(RIGHT_MOTOR_CTRL, LOW); analogWrite(RIGHT_MOTOR_PWM, spd);
+      // Left Wheel Reverse if Reverse Bit == 1
+      if      (reverse == 1) {digitalWrite(RIGHT_MOTOR_CTRL, LOW); analogWrite(RIGHT_MOTOR_PWM, spd);} // Left Wheels = Motor 1 on Test Code
+      // Left Wheel Forward if Reverse Bit == 1
+      else if (reverse == 0) {digitalWrite(RIGHT_MOTOR_CTRL, HIGH); analogWrite(RIGHT_MOTOR_PWM, spd);} // Left Wheels = Motor 1 on Test Code
     }
   }
   
