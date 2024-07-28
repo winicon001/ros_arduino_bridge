@@ -6,7 +6,8 @@
    #define near the top of the main ROSArduinoBridge.ino file.
    
    ************************************************************ */
-   
+#include "TimerOne.h"
+
 #ifdef USE_BASE
 
 #ifdef ROBOGAIA
@@ -27,6 +28,8 @@
     if (i == LEFT) return encoders.YAxisReset();
     else return encoders.XAxisReset();
   }
+
+
 #elif defined(ARDUINO_ENC_COUNTER)
   volatile long left_enc_pos = 0L;
   volatile long right_enc_pos = 0L;
@@ -68,9 +71,82 @@
       return;
     }
   }
+
+// ################################################################
+// ################################################################
+
+#elif defined(ARDUINO_ENC_COUNTER_2)
+//     /* My Encoder */
+//     #include "TimerOne.h"
+
+
+
+//   // Constants for Interrupt Pins
+//   // Change values if not using Arduino Uno
+
+//   const byte RIGHT_ENCODER = 2;  // RIght Encoder Interrupt Pin - INT 0
+//   const byte LEFT_ENCODER = 3;  // Left Encoder Interrupt Pin - INT 1
+
+//   // Integers for pulse counters
+//   unsigned int Right_Encoder_counter = 0;
+//   unsigned int Left_Encoder_counter = 0;
+
+//   // Float for number of slots in encoder disk
+//   float diskslots = 20;  // Change to match value of encoder disk
+
+//   // Interrupt Service Routines
+
+//   // RIght Encoder pulse count ISR
+//   void ISR_count1()  
+//   {
+//     Right_Encoder_counter++;  // increment RIght Encoder counter value
+//   } 
+
+//   // Left Encoder pulse count ISR
+//   void ISR_count2()  
+//   {
+//     Left_Encoder_counter++;  // increment Left Encoder counter value
+//   } 
+
+    
+//   //Timer1.initialize(1000000); // set timer for 1sec
+//   // attachInterrupt(digitalPinToInterrupt (RIGHT_ENCODER), ISR_count1, RISING);  // Increase Right counter when speed sensor pin goes High
+//   // attachInterrupt(digitalPinToInterrupt (LEFT_ENCODER), ISR_count2, RISING);  // Increase Left counter when speed sensor pin goes High
+//   //Timer1.attachInterrupt( ISR_timerone ); // Enable the timer
+
+
+//  /* Wrap the encoder reading function */
+//   /* Wrap the encoder reading function */
+//   long readEncoder(int i) {
+//     if (i == LEFT) return Left_Encoder_counter;
+//     else return Right_Encoder_counter;
+//   }
+
+//   /* Wrap the encoder reading function */
+//   // long readEncoder(int i) {
+//   //   if (i == RIGHT) return Right_Encoder_counter;
+//   //   else return Left_Encoder_counter;
+//   // }
+
+
+
+  // ################################################################################
+  // ################################################################################
+
+
 #else
   #error A encoder driver must be selected!
 #endif
+
+void resetEncoder(int i) {
+    if (i == LEFT){
+      Left_Encoder_counter=0L;
+      return;
+    } else { 
+      Right_Encoder_counter=0L;
+      return;
+    }
+  }
 
 /* Wrap the encoder reset function */
 void resetEncoders() {

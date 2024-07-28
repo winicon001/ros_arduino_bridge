@@ -45,8 +45,53 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
+
+
+
 #define USE_BASE      // Enable the base controller code
 //#undef USE_BASE     // Disable the base controller code
+
+// ############################################
+
+  // Constants for Interrupt Pins
+  // Change values if not using Arduino Uno
+
+  int  RIGHT_ENCODER = 2;  // RIght Encoder Interrupt Pin - INT 0
+  int  LEFT_ENCODER = 3;  // Left Encoder Interrupt Pin - INT 1
+
+  // Integers for pulse counters
+  unsigned int Right_Encoder_counter = 0;
+  unsigned int Left_Encoder_counter = 0;
+
+
+    /* My Encoder */
+    //#include "TimerOne.h"
+
+
+
+  // Constants for Interrupt Pins
+  // Change values if not using Arduino Uno
+
+
+  // Float for number of slots in encoder disk
+  float diskslots = 20;  // Change to match value of encoder disk
+
+  // Interrupt Service Routines
+
+  // RIght Encoder pulse count ISR
+  void ISR_count1()  
+  {
+    Right_Encoder_counter++;  // increment RIght Encoder counter value
+  } 
+
+  // Left Encoder pulse count ISR
+  void ISR_count2()  
+  {
+    Left_Encoder_counter++;  // increment Left Encoder counter value
+  } 
+
+
+// ############################################
 
 /* Define the motor controller and encoder library you are using */
 #ifdef USE_BASE
@@ -60,10 +105,12 @@
    //#define ROBOGAIA
    
    /* Encoders directly attached to Arduino board */
-   #define ARDUINO_ENC_COUNTER
+   #define ARDUINO_ENC_COUNTER_2
 
    /* L298 Motor driver*/
-   #define L298_MOTOR_DRIVER
+  //  #define L298_MOTOR_DRIVER
+  // ######### THIS IS MY MOTOR DRIVER #############
+   #define DRV8833_MOTOR_DRIVER
 #endif
 
 //#define USE_SERVOS  // Enable use of PWM servos as defined in servos.h
@@ -75,11 +122,10 @@
 /* Maximum PWM signal */
 #define MAX_PWM        255
 
-#if defined(ARDUINO) && ARDUINO >= 100
-#include "Arduino.h"
-#else
-#include "WProgram.h"
-#endif
+// #########################
+// Include Arduino Anyway
+
+//#include "Arduino.h"
 
 /* Include definition of serial commands */
 #include "commands.h"
@@ -92,6 +138,8 @@
    #include <Servo.h>
    #include "servos.h"
 #endif
+
+#include "TimerOne.h"
 
 #ifdef USE_BASE
   /* Motor driver function definitions */
@@ -245,33 +293,25 @@ int runCommand() {
   }
 }
 
+
+// ############################################
+
+/* Wrap the encoder reading function */
+  /* Wrap the encoder reading function */
+  long readEncoder(int i) {
+    if (i == LEFT) return Left_Encoder_counter;
+    else return Right_Encoder_counter;
+  }
+
+// ############################################
+
 /* Setup function--runs once at startup. */
 void setup() {
   Serial.begin(BAUDRATE);
 
 // Initialize the motor controller if used */
 #ifdef USE_BASE
-  #ifdef ARDUINO_ENC_COUNTER
-    //set as inputs
-    DDRD &= ~(1<<LEFT_ENC_PIN_A);
-    DDRD &= ~(1<<LEFT_ENC_PIN_B);
-    DDRC &= ~(1<<RIGHT_ENC_PIN_A);
-    DDRC &= ~(1<<RIGHT_ENC_PIN_B);
-    
-    //enable pull up resistors
-    PORTD |= (1<<LEFT_ENC_PIN_A);
-    PORTD |= (1<<LEFT_ENC_PIN_B);
-    PORTC |= (1<<RIGHT_ENC_PIN_A);
-    PORTC |= (1<<RIGHT_ENC_PIN_B);
-    
-    // tell pin change mask to listen to left encoder pins
-    PCMSK2 |= (1 << LEFT_ENC_PIN_A)|(1 << LEFT_ENC_PIN_B);
-    // tell pin change mask to listen to right encoder pins
-    PCMSK1 |= (1 << RIGHT_ENC_PIN_A)|(1 << RIGHT_ENC_PIN_B);
-    
-    // enable PCINT1 and PCINT2 interrupt in the general interrupt mask
-    PCICR |= (1 << PCIE1) | (1 << PCIE2);
-  #endif
+
   initMotorController();
   resetPID();
 #endif
@@ -332,7 +372,14 @@ void loop() {
       }
     }
   }
-  
+
+// ############################################
+#ifdef ARDUINO_ENC_COUNTER_2
+  attachInterrupt(digitalPinToInterrupt (RIGHT_ENCODER), ISR_count1, RISING);  // Increase Right counter when speed sensor pin goes High
+  attachInterrupt(digitalPinToInterrupt (LEFT_ENCODER), ISR_count2, RISING);  // Increase Left counter when speed sensor pin goes High
+#endif
+// ############################################
+
 // If we are using base control, run a PID calculation at the appropriate intervals
 #ifdef USE_BASE
   if (millis() > nextPID) {
